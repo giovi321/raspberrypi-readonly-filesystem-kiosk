@@ -234,8 +234,8 @@ You can change the timeout (i.e., the time the computer will wait before hiding 
 * https://medium.com/swlh/make-your-raspberry-pi-file-system-read-only-raspbian-buster-c558694de79
 
 
-
-# The content of this repository is licensed under the WTFPL.
+# License
+The content of this repository is licensed under the WTFPL.
 ```
 Copyright © 2023 giovi321
 This work is free. You can redistribute it and/or modify it under the
