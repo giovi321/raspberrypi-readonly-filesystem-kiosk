@@ -227,6 +227,150 @@ Run it before Chromium in your `/root/.xinitrc` file by adding this line above a
 
 You can change the timeout (i.e., the time the computer will wait before hiding the cursor after the latest interaction). The default is 5 seconds.
 
+
+# Control the screen via MQTT
+A little extra: these few scripts will allow you to control the screen via MQTT.
+
+Install `mosquitto` client
+```
+apt install mosquitto-clients
+```
+
+Create the script that will turn on and off the screen
+```
+nano /mqtt-display-set.sh
+```
+
+Add the following content and edit the MQTT broker variables
+```
+#!/bin/bash
+
+# MQTT Broker Details
+BROKER="192.168.1.1"
+USER="your-username"
+PASSWORD="your-password"
+TOPIC="tablet/screen/set"
+
+# Function to turn off the display
+turn_off_display() {
+    echo "Turning off the display..."
+    DISPLAY=:0 xset dpms force off
+}
+
+# Function to turn on the display
+turn_on_display() {
+    echo "Turning on the display..."
+    DISPLAY=:0 xset dpms force on
+    DISPLAY=:0 xset -dpms
+}
+
+# Subscribe to the MQTT topic and listen for messages
+mosquitto_sub -h "$BROKER" -u "$USER" -p 1883 -P "$PASSWORD" -t "$TOPIC" | while read -r message
+do
+    if [ "$message" == "0" ]; then
+        # If message is 0, turn off the display
+        turn_off_display
+    elif [ "$message" == "1" ]; then
+        # If message is 1, turn on the display
+        turn_on_display
+    fi
+done
+```
+
+Create the script that publishes the status of the screen (on/off)
+```
+nano /mqtt-display-status.sh
+```
+
+Add the following content and edit the MQTT broker variables
+```
+#!/bin/bash
+
+# Configurable variables
+BROKER="192.168.1.1"
+USER="your-username"
+PASSWORD="your-password"
+TOPIC="tablet/screen/status"
+
+# Function to check and publish monitor state
+check_and_publish_monitor_state() {
+    # Get the current monitor state
+    monitor_state=$(DISPLAY=:0 xset q | grep "Monitor is" | awk '{print $3}')
+
+    # Check if the monitor is On or Off
+    if [ "$monitor_state" == "On" ]; then
+        # If the monitor is On, publish message "1" to the MQTT topic
+        mosquitto_pub -h "$BROKER" -u "$USER" -p 1883 -P "$PASSWORD" -t "$TOPIC" -m "1"
+        echo "Monitor is On. Message '1' sent."
+    else
+        # If the monitor is Off, publish message "0" to the MQTT topic
+        mosquitto_pub -h "$BROKER" -u "$USER" -p 1883 -P "$PASSWORD" -t "$TOPIC" -m "0"
+        echo "Monitor is Off. Message '0' sent."
+    fi
+}
+
+# Call the function to check the monitor state and publish the result
+check_and_publish_monitor_state
+```
+
+Make the two scripts executable
+```
+chmod +x mqtt-display-set.sh
+chmod +x mqtt-display-status.sh 
+```
+
+Create the two systemd services to auto-start the scripts
+```
+nano /etc/systemd/system/mqtt-display-set.service
+```
+
+Add the following content to the file
+```
+[Unit]
+Description=Monitor Display Control based on MQTT messages
+After=network.target
+
+[Service]
+ExecStart=/mqtt-display-set.sh
+Restart=always
+User=root
+StandardOutput=journal
+StandardError=journal
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Now the second service
+```
+nano /etc/systemd/system/mqtt-display-staus.service
+```
+
+Add the following content to the file
+```
+[Unit]
+Description=Publish Monitor State to MQTT
+After=network.target
+
+[Service]
+ExecStart=/mqtt-display-status.sh
+Restart=always
+User=root
+StandardOutput=journal
+StandardError=journal
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable the two services
+```
+systemctl enable mqtt-display-set.service
+systemctl enable mqtt-display-status.service
+```
+
 # Sources
 * https://github.com/vladbabii/raspberry_os_buster_read_only_fs 
 * https://media.ccc.de/v/30C3_-_5294_-_en_-_saal_1_-_201312291400_-_the_exploration_and_exploitation_of_an_sd_memory_card_-_bunnie_-_xobs#t=2
