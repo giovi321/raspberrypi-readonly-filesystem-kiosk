@@ -365,10 +365,12 @@ RestartSec=5s
 WantedBy=multi-user.target
 ```
 
-Enable the two services
+Enable and start the two services
 ```
 systemctl enable mqtt-display-set.service
 systemctl enable mqtt-display-status.service
+systemctl start mqtt-display-set.service
+systemctl start mqtt-display-status.service
 ```
 
 # Sources
