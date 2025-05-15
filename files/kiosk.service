@@ -1,0 +1,13 @@
+[Unit]
+Description=Minimal Chromium Kiosk
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/xinit
+WorkingDirectory=/root
+User=root
+Restart=always
+Environment=XDG_RUNTIME_DIR=/run/user/0
+
+[Install]
+WantedBy=default.target

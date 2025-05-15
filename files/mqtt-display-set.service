@@ -1,0 +1,14 @@
+[Unit]
+Description=Monitor Display Control based on MQTT messages
+After=network.target
+
+[Service]
+ExecStart=/root/mqtt-display-set.sh
+Restart=always
+User=root
+StandardOutput=journal
+StandardError=journal
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
