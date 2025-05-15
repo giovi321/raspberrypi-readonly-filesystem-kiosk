@@ -238,7 +238,7 @@ apt install mosquitto-clients
 
 Create the script that will turn on and off the screen
 ```
-nano /mqtt-display-set.sh
+nano /root/mqtt-display-set.sh
 ```
 
 Add the following content and edit the MQTT broker variables
@@ -279,7 +279,7 @@ done
 
 Create the script that publishes the status of the screen (on/off)
 ```
-nano /mqtt-display-status.sh
+nano /root/mqtt-display-status.sh
 ```
 
 Add the following content and edit the MQTT broker variables
@@ -331,7 +331,7 @@ Description=Monitor Display Control based on MQTT messages
 After=network.target
 
 [Service]
-ExecStart=/mqtt-display-set.sh
+ExecStart=/root/mqtt-display-set.sh
 Restart=always
 User=root
 StandardOutput=journal
@@ -354,7 +354,7 @@ Description=Publish Monitor State to MQTT
 After=network.target
 
 [Service]
-ExecStart=/mqtt-display-status.sh
+ExecStart=/root/mqtt-display-status.sh
 Restart=always
 User=root
 StandardOutput=journal
