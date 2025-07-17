@@ -34,7 +34,7 @@ Log manager change (as root)
 apt-get install busybox-syslogd
 ```
 
-Edit /etc/fstab and add the ",ro" flags to all block devices that start with PARTUUID=...
+Edit `/etc/fstab` and add the `,ro` flags to all block devices that start with `PARTUUID=...`
 ```
 proc                  /proc     proc    defaults             0     0
 PARTUUID=fb0d460e-01  /boot     vfat    defaults,ro          0     2
@@ -42,7 +42,7 @@ PARTUUID=fb0d460e-02  /         ext4    defaults,noatime,ro  0     1
 ```
 
 
-Edit /etc/fstab and add tmpfs
+Edit `/etc/fstab` and add tmpfs
 ```
 tmpfs        /tmp            tmpfs   nosuid,nodev         0       0
 tmpfs        /var/log        tmpfs   nosuid,nodev         0       0
@@ -56,7 +56,7 @@ systemctl enable systemd-resolved
 systemctl start systemd-resolved
 ```
 
-Tell NetworkManager to hand DNS off to systemd
+Tell NetworkManager to hand off DNS to systemd
 ```
 mkdir -p /etc/NetworkManager/conf.d
 cat <<EOF > /etc/NetworkManager/conf.d/10-dns.conf
@@ -74,11 +74,11 @@ rm /var/lib/systemd/random-seed
 ln -s /tmp/random-seed /var/lib/systemd/random-seed
 ```
 
-Edit /lib/systemd/system/systemd-random-seed.service , add line
+Edit `/lib/systemd/system/systemd-random-seed.service`, add line
 ```
 ExecStartPre=/bin/echo "" >/tmp/random-seed
 ```
-under [Service] section like this
+under `[Service]` section like this
 ```
 [Service]
 Type=oneshot
@@ -89,7 +89,7 @@ ExecStop=/lib/systemd/systemd-random-seed save
 TimeoutSec=30s
 ```
 
-Edit /etc/bash.bashrc and add the lines at the end of the file
+Edit `/etc/bash.bashrc` and add the lines at the end of the file
 ```
 set_bash_prompt() {
     fs_mode=$(mount | sed -n -e "s/^\/dev\/.* on \/ .*(\(r[w|o]\).*/\1/p")
@@ -100,7 +100,7 @@ alias rw='sudo mount -o remount,rw / ; sudo mount -o remount,rw /boot'
 PROMPT_COMMAND=set_bash_prompt
 ```
 
-Create /etc/bash.bash_logout
+Create `/etc/bash.bash_logout`
 ```
 mount -o remount,ro /
 mount -o remount,ro /boot
