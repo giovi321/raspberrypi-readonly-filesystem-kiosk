@@ -18,13 +18,13 @@ apt-get update
 apt-get upgrade
 ```
 
-Run as root
+Remove unnecessary packages
 ```
 apt-get remove --purge triggerhappy logrotate dphys-swapfile
 apt-get autoremove --purge
 ```
 
-Edit /boot/cmdline.txt and add at the end of the first line of the file
+Edit `/boot/firmware/cmdline.txt` and add at the end of the first line of the file
 ```
 fastboot noswap ro
 ```
