@@ -224,7 +224,13 @@ You can change the timeout (i.e., the time the computer will wait before hiding 
 
 
 # Control the device via MQTT
-A little extra: this simple script allows you to control the device via MQTT. A new MQTT device will pop up in your home assistant like this:
+A little extra: this simple script allows you to control the device via MQTT. A new MQTT device will pop up in your home assistant and allow you to:
+- Turn off the display
+- Turn on the display
+- Reboot the computer
+- Refresh the page
+- See a screenshot of the display (in case you're configuring the dashboard and want to see the outcome on the screen of the device)
+
 <img width="432" height="665" alt="image" src="https://github.com/user-attachments/assets/2add2d90-edf1-4d90-bb08-0670e25f9180" />
 
 
