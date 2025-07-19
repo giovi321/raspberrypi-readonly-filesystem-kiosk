@@ -10,7 +10,8 @@ USER="username"                   # MQTT username
 PASSWORD="password"      # MQTT password
 DEVICE_NAME="Tablet"  # Friendly name in Home Assistant
 DEVICE_ID="tablet"   # ID used in MQTT topics (no spaces)
-INTERVAL=10                      # Interval in seconds for screenshot
+INTERVAL_SCREENSHOT=10                      # Interval in seconds for screenshot
+INTERVAL_SCREENSTATE=1                      # Interval in seconds for publishing the state of the screen (on or off)
 
 #########################
 # Prepare X access
@@ -23,7 +24,7 @@ xhost +SI:localuser:root >/dev/null 2>&1
 # Device JSON payload for Home Assistant discovery
 #########################
 DEVICE_PAYLOAD=$(cat <<EOF
-{"identifiers":["${DEVICE_ID}"],"name":"${DEVICE_NAME}","model":"readonly-kiosk","manufacturer":"giovi","sw_version":"1.0"}
+{"identifiers":["${DEVICE_ID}"],"name":"${DEVICE_NAME}","model":"kiosk","manufacturer":"none","sw_version":"1.0"}
 EOF
 )
 
@@ -57,7 +58,7 @@ download_loop() {
       -f "$FILE" \
       -q 1
     rm -f "$FILE"
-    sleep "$INTERVAL"
+    sleep "$INTERVAL_SCREENSHOT"
   done
 }
 
@@ -67,7 +68,7 @@ state_loop() {
     state=$(xset q | grep -Po '(?<=Monitor is )\w+')
     if [ "$state" = "On" ]; then p=1; else p=0; fi
     mosquitto_pub -h "$BROKER" -u "$USER" -P "$PASSWORD" -t "${DEVICE_ID}/screen/state" -m "$p"
-    sleep $INTERVAL
+    sleep $INTERVAL_SCREENSTATE
   done
 }
 
