@@ -124,7 +124,7 @@ pi@raspberrypi(ro):~$
 
 # Add kiosk mode
 
-# Set up the browser and window manager
+## Set up the browser and window manager
 
 Install `x`, `openbox` and `chromium` to have a window manager and browser
 ```
