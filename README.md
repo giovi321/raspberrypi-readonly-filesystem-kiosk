@@ -223,149 +223,60 @@ unclutter -idle 5 &
 You can change the timeout (i.e., the time the computer will wait before hiding the cursor after the latest interaction). The default is 5 seconds.
 
 
-# Control the screen via MQTT
-A little extra: these few scripts will allow you to control the screen via MQTT.
+# Control the device via MQTT
+A little extra: this simple script allows you to control the device via MQTT. A new MQTT device will pop up in your home assistant like this:
+<img width="432" height="665" alt="image" src="https://github.com/user-attachments/assets/2add2d90-edf1-4d90-bb08-0670e25f9180" />
 
-Install `mosquitto` client
-```
-apt install mosquitto-clients
-```
 
-Create the script that will turn on and off the screen
+Install required packages:
 ```
-nano /root/mqtt-display-set.sh
+apt install mosquitto-clients scrot
 ```
 
-Add the following content and edit the MQTT broker variables
+Download the script from this repo and make it executable
 ```
-#!/bin/bash
-
-# MQTT Broker Details
-BROKER="192.168.1.1"
-USER="your-username"
-PASSWORD="your-password"
-TOPIC="tablet/screen/set"
-
-# Function to turn off the display
-turn_off_display() {
-    echo "Turning off the display..."
-    DISPLAY=:0 xset dpms force off
-}
-
-# Function to turn on the display
-turn_on_display() {
-    echo "Turning on the display..."
-    DISPLAY=:0 xset dpms force on
-    DISPLAY=:0 xset -dpms
-}
-
-# Subscribe to the MQTT topic and listen for messages
-mosquitto_sub -h "$BROKER" -u "$USER" -p 1883 -P "$PASSWORD" -t "$TOPIC" | while read -r message
-do
-    if [ "$message" == "0" ]; then
-        # If message is 0, turn off the display
-        turn_off_display
-    elif [ "$message" == "1" ]; then
-        # If message is 1, turn on the display
-        turn_on_display
-    fi
-done
+cd /root/
+wget https://github.com/giovi321/raspberrypi-readonly-filesystem-kiosk/raw/refs/heads/main/files/mqtt_kiosk_manager.sh
+chmod +x /root/mqtt_kiosk_manager.sh
 ```
 
-Create the script that publishes the status of the screen (on/off)
+Edit the MQTT broker variables (lines 8 to 12) of that very file
 ```
-nano /root/mqtt-display-status.sh
+BROKER="192.168.1.1"         # MQTT broker address
+USER="username"                   # MQTT username
+PASSWORD="password"      # MQTT password
+DEVICE_NAME="Tablet"  # Friendly name in Home Assistant
+DEVICE_ID="tablet"   # ID used in MQTT topics (no spaces)
 ```
-
-Add the following content and edit the MQTT broker variables
+Create the service file to run the script permanently and at startup
 ```
-#!/bin/bash
-
-# Configurable variables
-BROKER="192.168.1.1"
-USER="your-username"
-PASSWORD="your-password"
-TOPIC="tablet/screen/status"
-
-# Function to check and publish monitor state
-check_and_publish_monitor_state() {
-    # Get the current monitor state
-    monitor_state=$(DISPLAY=:0 xset q | grep "Monitor is" | awk '{print $3}')
-
-    # Check if the monitor is On or Off
-    if [ "$monitor_state" == "On" ]; then
-        # If the monitor is On, publish message "1" to the MQTT topic
-        mosquitto_pub -h "$BROKER" -u "$USER" -p 1883 -P "$PASSWORD" -t "$TOPIC" -m "1"
-        echo "Monitor is On. Message '1' sent."
-    else
-        # If the monitor is Off, publish message "0" to the MQTT topic
-        mosquitto_pub -h "$BROKER" -u "$USER" -p 1883 -P "$PASSWORD" -t "$TOPIC" -m "0"
-        echo "Monitor is Off. Message '0' sent."
-    fi
-}
-
-# Call the function to check the monitor state and publish the result
-check_and_publish_monitor_state
-```
-
-Make the two scripts executable
-```
-chmod +x mqtt-display-set.sh
-chmod +x mqtt-display-status.sh 
-```
-
-Create the two systemd services to auto-start the scripts
-```
-nano /etc/systemd/system/mqtt-display-set.service
+nano /etc/systemd/system/mqtt-kiosk-manager.service
 ```
 
 Add the following content to the file
 ```
 [Unit]
-Description=Monitor Display Control based on MQTT messages
-After=network.target
+Description=MQTT Kiosk Manager Service
+Wants=network.target graphical.target kiosk.service
+After=network.target kiosk.service
 
 [Service]
-ExecStart=/root/mqtt-display-set.sh
-Restart=always
+Type=simple
 User=root
-StandardOutput=journal
-StandardError=journal
+Environment=DISPLAY=:0
+ExecStartPre=/bin/sleep 60
+ExecStartPre=/usr/bin/xset dpms force on
+ExecStart=/root/mqtt_kiosk_manager.sh
+Restart=always
 RestartSec=5s
 
 [Install]
 WantedBy=multi-user.target
 ```
 
-Now the second service
+Enable and start the service
 ```
-nano /etc/systemd/system/mqtt-display-staus.service
-```
-
-Add the following content to the file
-```
-[Unit]
-Description=Publish Monitor State to MQTT
-After=network.target
-
-[Service]
-ExecStart=/root/mqtt-display-status.sh
-Restart=always
-User=root
-StandardOutput=journal
-StandardError=journal
-RestartSec=5s
-
-[Install]
-WantedBy=multi-user.target
-```
-
-Enable and start the two services
-```
-systemctl enable mqtt-display-set.service
-systemctl enable mqtt-display-status.service
-systemctl start mqtt-display-set.service
-systemctl start mqtt-display-status.service
+systemctl enable mqtt-kiosk-manager.service
 ```
 
 # Sources
