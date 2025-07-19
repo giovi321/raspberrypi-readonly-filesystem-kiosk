@@ -231,7 +231,7 @@ A little extra: this simple script allows you to control the device via MQTT. A 
 - Refresh the page
 - See a screenshot of the display (in case you're configuring the dashboard and want to see the outcome on the screen of the device)
 
-<img width="70%" height="70%" alt="image" src="https://github.com/user-attachments/assets/2add2d90-edf1-4d90-bb08-0670e25f9180" />
+<img width="20%" height="20%" alt="image" src="https://github.com/user-attachments/assets/2add2d90-edf1-4d90-bb08-0670e25f9180" />
 
 
 Install required packages:
