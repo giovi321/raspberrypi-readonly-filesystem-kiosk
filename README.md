@@ -229,7 +229,9 @@ A little extra: this simple script allows you to control the device via MQTT. A 
 - Turn on the display
 - Reboot the computer
 - Refresh the page
-- See a screenshot of the display (in case you're configuring the dashboard and want to see the outcome on the screen of the device)
+- See a screenshot of the display, which is particularly useful:
+    - in case you're configuring the dashboard and want to see the outcome on the screen of the device
+    - in case you want to check if the screen is on of off
 
 <img width="30%" height="30%" alt="image" src="https://github.com/user-attachments/assets/2add2d90-edf1-4d90-bb08-0670e25f9180" />
 
