@@ -199,18 +199,13 @@ sudo systemctl enable kiosk.service
 
 Create or edit `/root/.xserverrc`
 ```
-Create or edit `/root/.xserverrc`:
-```
-
-Put this inside
-```
 #!/bin/sh
 exec /usr/bin/X -nocursor -nolisten tcp "$@"
 ```
 
 Make it executable
 ```
-`chmod +x /root/.xserverrc
+chmod +x /root/.xserverrc
 ```
 
 ## Remove the cursor only when inactive
@@ -222,7 +217,7 @@ sudo apt install unclutter-xfixes
 
 Run it before Chromium in your `/root/.xinitrc` file by adding this line above all the rest
 ```
-`unclutter -idle 5 &`
+unclutter -idle 5 &
 ```
 
 You can change the timeout (i.e., the time the computer will wait before hiding the cursor after the latest interaction). The default is 5 seconds.
