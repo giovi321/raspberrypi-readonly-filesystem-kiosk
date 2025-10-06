@@ -151,6 +151,8 @@ openbox-session &
 
 # Start Chromium in kiosk mode without need for cache
 chromium \
+# The following line is needed only if you want to show content in "dark mode", that is to show the dark theme of home-assistant
+#  --force-dark-mode --enable-features=WebUIDarkMode \
   --no-sandbox \
   --kiosk \
   --incognito \
