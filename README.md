@@ -5,7 +5,7 @@ I took the instructions wrote by @vladbabii here https://github.com/vladbabii/ra
 1) compatibility with Raspberry PI OS Trixie AND Bookworm
 2) Possibility to add a kiosk mode (a chromium window that auto starts and shows a web page)
 
-The instructions for Bookworm are [README_bookworm.md](here).
+The instructions for Bookworm are [here](README_bookworm.md).
 
 ## Initial setup
 
