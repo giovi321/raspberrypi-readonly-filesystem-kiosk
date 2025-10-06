@@ -16,14 +16,14 @@ The instructions for Bookworm are [here](README_bookworm.md).
 
 Update packages
 ```
-apt-get update
-apt-get upgrade
+apt update
+apt upgrade
 ```
 
 Remove unnecessary packages
 ```
-apt-get remove --purge triggerhappy logrotate dphys-swapfile
-apt-get autoremove --purge
+apt remove --purge triggerhappy logrotate dphys-swapfile
+apt autoremove --purge
 ```
 
 Edit `/boot/firmware/cmdline.txt` and add at the end of the first line of the file
@@ -33,14 +33,10 @@ fastboot noswap ro
 
 Log manager change
 ```
-apt-get install busybox-syslogd
+apt install busybox-syslogd
 ```
 
-Make `journald` volatile
-```
-nano /etc/systemd/journald.conf
-```
-
+Make `journald` volatile by editing `/etc/systemd/journald.conf`
 Add the following lines at the end of the file
 ```
 Storage=volatile
@@ -65,7 +61,7 @@ tmpfs        /var/tmp        tmpfs   nosuid,nodev         0       0
 
 Install & enable `systemd-resolved`
 ```
-apt-get install --no-install-recommends systemd-resolved
+apt install --no-install-recommends systemd-resolved
 systemctl enable systemd-resolved
 systemctl start systemd-resolved
 ```
