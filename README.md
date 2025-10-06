@@ -36,6 +36,18 @@ Log manager change
 apt-get install busybox-syslogd
 ```
 
+Make `journald` volatile
+```
+nano /etc/systemd/journald.conf
+```
+
+Add the following lines at the end of the file
+```
+Storage=volatile
+RuntimeMaxUse=32M
+RuntimeMaxFileSize=8M
+```
+
 Edit `/etc/fstab` and add the `,ro` flags to all block devices that start with `PARTUUID=...`
 ```
 proc                  /proc     proc    defaults             0     0
