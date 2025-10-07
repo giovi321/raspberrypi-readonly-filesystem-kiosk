@@ -241,7 +241,7 @@ A little extra: this simple script allows you to control the device via MQTT. A 
 
 Install required packages:
 ```
-apt install mosquitto-clients scrot
+apt install mosquitto-clients scrot xdotool
 ```
 
 Download the script from this repo and make it executable
