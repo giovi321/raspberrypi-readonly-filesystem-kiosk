@@ -83,7 +83,7 @@ state_loop &
 mosquitto_sub -h "$BROKER" -u "$USER" -P "$PASSWORD" -t "${DEVICE_ID}/screen/set" | \
 while read -r cmd; do
   if [ "$cmd" = "0" ]; then xset dpms force off; fi
-  if [ "$cmd" = "1" ]; then xset dpms force on; sleep 1; xset +dpms; fi
+  if [ "$cmd" = "1" ]; then xset dpms force on; sleep 1; xset dpms 0 0 0; fi
 done &
 
 # Refresh page
