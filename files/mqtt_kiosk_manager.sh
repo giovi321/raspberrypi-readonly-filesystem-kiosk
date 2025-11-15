@@ -30,6 +30,13 @@ EOF
 
 # Common mosquitto_pub args
 PUB_ARGS="-h $BROKER -u $USER -P $PASSWORD -r"
+# Common mosquitto_sub args
+SUB_ARGS=(-h "$BROKER" -u "$USER" -P "$PASSWORD")
+RECONNECT_DELAY=5
+
+log_reconnect() {
+  echo "$(date +'%Y-%m-%dT%H:%M:%S%z') mqtt_kiosk_manager: MQTT connection lost for $1, retrying in ${RECONNECT_DELAY}s" >&2
+}
 
 #########################
 # 0) Publish Home Assistant discovery
@@ -80,29 +87,47 @@ state_loop &
 # 2) Command listeners
 #########################
 # Screen on/off
-mosquitto_sub -h "$BROKER" -u "$USER" -P "$PASSWORD" -t "${DEVICE_ID}/screen/set" | \
-while read -r cmd; do
-  if [ "$cmd" = "0" ]; then xset dpms force off; fi
-  if [ "$cmd" = "1" ]; then xset dpms force on; sleep 1; xset dpms 0 0 0; fi
-done &
+screen_loop() {
+  while true; do
+    mosquitto_sub "${SUB_ARGS[@]}" -t "${DEVICE_ID}/screen/set" |
+    while read -r cmd; do
+      if [ "$cmd" = "0" ]; then xset dpms force off; fi
+      if [ "$cmd" = "1" ]; then xset dpms force on; sleep 1; xset dpms 0 0 0; fi
+    done
+    log_reconnect "${DEVICE_ID}/screen/set"
+    sleep "$RECONNECT_DELAY"
+  done
+}
+screen_loop &
 
 # Refresh page
 touch_loop() {
-  mosquitto_sub -h "$BROKER" -u "$USER" -P "$PASSWORD" -t "${DEVICE_ID}/refresh" |
-  while read -r cmd; do
-    if [ "$cmd" = "refresh" ]; then
-      W=$(xdotool search --onlyvisible --class chromium | head -n1)
-      xdotool key --window "$W" --clearmodifiers ctrl+F5
-    fi
+  while true; do
+    mosquitto_sub "${SUB_ARGS[@]}" -t "${DEVICE_ID}/refresh" |
+    while read -r cmd; do
+      if [ "$cmd" = "refresh" ]; then
+        W=$(xdotool search --onlyvisible --class chromium | head -n1)
+        xdotool key --window "$W" --clearmodifiers ctrl+F5
+      fi
+    done
+    log_reconnect "${DEVICE_ID}/refresh"
+    sleep "$RECONNECT_DELAY"
   done
 }
 touch_loop &
 
 # Reboot
-mosquitto_sub -h "$BROKER" -u "$USER" -P "$PASSWORD" -t "${DEVICE_ID}/reboot" | \
-while read -r cmd; do
-  [ "$cmd" = "reboot" ] && reboot
-done &
+reboot_loop() {
+  while true; do
+    mosquitto_sub "${SUB_ARGS[@]}" -t "${DEVICE_ID}/reboot" |
+    while read -r cmd; do
+      [ "$cmd" = "reboot" ] && reboot
+    done
+    log_reconnect "${DEVICE_ID}/reboot"
+    sleep "$RECONNECT_DELAY"
+  done
+}
+reboot_loop &
 
 # Prevent exit
 wait
